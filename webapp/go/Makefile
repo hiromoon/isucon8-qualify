@@ -4,6 +4,12 @@ all: build
 clean:
 	rm -rf torb
 
+deploy:
+	GOPATH=`pwd`:`pwd`/vendor GOOS=linux GOARCH=amd64 go build -v torb
+	ssh isucon 'sudo systemctl stop isucon.service'
+	scp ./torb isucon:~/isucon8-qualify/webapp/go
+	ssh isucon 'sudo systemctl start isucon.service'
+
 deps:
 	gb vendor restore
 

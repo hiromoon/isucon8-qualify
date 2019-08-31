@@ -21,7 +21,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/middleware"
-	"github.com/sevenNt/echo-pprof"
+	// "github.com/sevenNt/echo-pprof"
 )
 
 type User struct {
@@ -336,6 +336,7 @@ func main() {
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{Output: os.Stderr}))
 	e.Static("/", "public")
+	// echopprof.Wrap(e)
 	e.GET("/", func(c echo.Context) error {
 		events, err := getEvents(false)
 		if err != nil {
@@ -931,7 +932,6 @@ func main() {
 
 	// e.Listener = l
 
-	echopprof.Wrap(e)
 	e.Start(":8080")
 }
 

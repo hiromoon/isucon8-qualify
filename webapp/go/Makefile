@@ -35,5 +35,5 @@ db-init:
 	MYSQL_HOST=127.0.0.1 MYSQL_PWD=root bash ../../db/init.sh
 
 server: 
-	DB_DATABASE=torb DB_HOST=localhost DB_PORT=3306 DB_USER=isucon DB_PASS=isucon ./torb
+	DB_DATABASE=torb DB_HOST=127.0.0.1 DB_PORT=3306 DB_USER=isucon DB_PASS=isucon ./torb
 

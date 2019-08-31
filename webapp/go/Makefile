@@ -23,8 +23,17 @@ bench:
 result:
 	jq . < ../../bench/result.json | less
 
+db-start:
+	docker run -d -e MYSQL_ROOT_PASSWORD=root --name isucon-mysql-local -p 3306:3306 mysql:5.7;
+
+db-clean:
+	docker ps -aq | xargs docker stop | docker container prune -f
+	
+
 db-init:
-	../../db/init.sh
+	MYSQL_HOST=127.0.0.1 MYSQL_PWD=root bash ../../db/init-user.sh
+	MYSQL_HOST=127.0.0.1 MYSQL_PWD=root bash ../../db/init.sh
 
 server: 
 	DB_DATABASE=torb DB_HOST=localhost DB_PORT=3306 DB_USER=isucon DB_PASS=isucon ./torb
+

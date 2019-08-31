@@ -9,13 +9,13 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"net"
 	"os"
 	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"net"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/sessions"
@@ -351,7 +351,7 @@ func main() {
 		})
 	}, fillinUser)
 	e.GET("/initialize", func(c echo.Context) error {
-		cmd := exec.Command("../../db/init.sh")
+		cmd := exec.Command("../../db/remote-init.sh")
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		err := cmd.Run()

@@ -1,0 +1,30 @@
+[Unit]
+# 説明文
+Description = ISUCON Server            
+
+[Service]
+# サービス起動時のコマンド
+ExecStart = /home/ubuntu/isucon8-qualify/webapp/go/torb
+
+# サービス停止コマンド$MAINPIDはメインプロセスのPID参照に利用できる
+ExecStop = /bin/kill -HUP $MAINPID    
+
+# サービス再起動コマンド$MAINPIDは上述通り
+ExecReload = /bin/kill -HUP $MAINPID && /home/ubuntu/isucon8-qualify/webapp/go/torb
+
+# alwaysを指定するとプロセスが死んだ際に常に自動起動する
+# デフォルトのnoなら死んだまま
+Restart = no                          
+
+# 起動完了の判定条件.
+# フォアグラウンドで起動するプログラムはとりあえずsimpleでいい様なので指定.
+# forkしてコマンドが終わるタイプはforkingにすればいいらしい
+Type = simple                         
+
+
+[Install]
+# 旧来のrunlevelの概念にあたるようです.
+# multi-user.target: runlevel:3に相当
+# graphical.target: runlevel:5に相当
+# 他はman読む方がよさそう
+WantedBy = multi-user.target

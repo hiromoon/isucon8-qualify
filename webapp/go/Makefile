@@ -24,7 +24,7 @@ result:
 	jq . < ../../bench/result.json | less
 
 db-start:
-	docker run -d -e MYSQL_ROOT_PASSWORD=root --name isucon-mysql-local -p 3306:3306 mysql:5.7;
+	docker run -d -v `pwd`/scripts/mysql/conf.d:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=root --name isucon-mysql-local -p 3306:3306 mysql:5.7;
 
 db-clean:
 	docker ps -aq | xargs docker stop | docker container prune -f

@@ -40,3 +40,6 @@ db-init:
 server: 
 	DB_DATABASE=torb DB_HOST=127.0.0.1 DB_PORT=3306 DB_USER=isucon DB_PASS=isucon ./torb
 
+accesslog: 
+	scp isucon:/var/log/nginx/access.log .
+	kataribe < ./access.log

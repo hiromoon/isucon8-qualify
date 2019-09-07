@@ -6,11 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/middleware"
 	"html/template"
 	"io"
 	"log"
@@ -20,6 +15,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/middleware"
 	// "github.com/sevenNt/echo-pprof"
 )
 
@@ -191,7 +192,14 @@ func getEvents(all bool) ([]*Event, error) {
 	}
 	defer tx.Commit()
 
-	rows, err := tx.Query("SELECT * FROM events ORDER BY id ASC")
+	q := ""
+	if all {
+		q = "SELECT * FROM events ORDER BY id ASC"
+	} else {
+		q = "SELECT * FROM events WHERE public_fg=1 ORDER BY id ASC"
+	}
+
+	rows, err := tx.Query(q)
 	if err != nil {
 		return nil, err
 	}
@@ -203,21 +211,18 @@ func getEvents(all bool) ([]*Event, error) {
 		if err := rows.Scan(&event.ID, &event.Title, &event.PublicFg, &event.ClosedFg, &event.Price); err != nil {
 			return nil, err
 		}
-		if !all && !event.PublicFg {
-			continue
-		}
-		events = append(events, &event)
-	}
-	for i, v := range events {
-		event, err := getEvent(v.ID, -1)
+
+		e, err := getEvent(event.ID, -1)
 		if err != nil {
 			return nil, err
 		}
-		for k := range event.Sheets {
-			event.Sheets[k].Detail = nil
+		for k := range e.Sheets {
+			e.Sheets[k].Detail = nil
 		}
-		events[i] = event
+
+		events = append(events, e)
 	}
+
 	return events, nil
 }
 

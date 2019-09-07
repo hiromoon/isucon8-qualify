@@ -888,7 +888,28 @@ func main() {
 		return renderReportCSV(c, reports)
 	}, adminLoginRequired)
 	e.GET("/admin/api/reports/sales", func(c echo.Context) error {
-		rows, err := db.Query("select r.*, s.rank as sheet_rank, s.num as sheet_num, s.price as sheet_price, e.id as event_id, e.price as event_price from reservations r inner join sheets s on s.id = r.sheet_id inner join events e on e.id = r.event_id order by reserved_at asc")
+		q := `
+SELECT
+	r.id,
+	r.event_id,
+	r.user_id,
+	r.reserved_at,
+	r.canceled_at,
+	s.rank AS sheet_rank,
+	s.num AS sheet_num,
+	s.price + e.price AS price
+FROM
+	reservations r
+	INNER JOIN
+		sheets s
+		ON
+			s.id = r.sheet_id
+	INNER JOIN
+		events e
+		ON e.id = r.event_id
+ORDER BY reserved_at ASC
+`
+		rows, err := db.Query(q)
 		if err != nil {
 			return err
 		}
@@ -896,23 +917,16 @@ func main() {
 
 		var reports []Report
 		for rows.Next() {
-			var reservation Reservation
-			var sheet Sheet
-			var event Event
-			if err := rows.Scan(&reservation.ID, &reservation.EventID, &reservation.SheetID, &reservation.UserID, &reservation.ReservedAt, &reservation.CanceledAt, &sheet.Rank, &sheet.Num, &sheet.Price, &event.ID, &event.Price); err != nil {
+			var report Report
+			var soldAt *time.Time
+			var canceledAt *time.Time
+
+			if err := rows.Scan(&report.ReservationID, &report.EventID, &report.UserID, &soldAt, &canceledAt, &report.Rank, &report.Num, &report.Price); err != nil {
 				return err
 			}
-			report := Report{
-				ReservationID: reservation.ID,
-				EventID:       event.ID,
-				Rank:          sheet.Rank,
-				Num:           sheet.Num,
-				UserID:        reservation.UserID,
-				SoldAt:        reservation.ReservedAt.Format("2006-01-02T15:04:05.000000Z"),
-				Price:         event.Price + sheet.Price,
-			}
-			if reservation.CanceledAt != nil {
-				report.CanceledAt = reservation.CanceledAt.Format("2006-01-02T15:04:05.000000Z")
+			report.SoldAt = soldAt.Format("2006-01-02T15:04:05.000000Z")
+			if canceledAt != nil {
+				report.CanceledAt = canceledAt.Format("2006-01-02T15:04:05.000000Z")
 			}
 			reports = append(reports, report)
 		}

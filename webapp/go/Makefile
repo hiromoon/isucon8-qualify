@@ -20,6 +20,9 @@ build:
 bench: 
 	cd ../../bench && bin/bench -remotes=127.0.0.1 -output result.json && cd -
 
+bench-remote: 
+	cd ../../bench && bin/bench -remotes=52.195.6.115 -output result.json && cd -
+
 result:
 	jq . < ../../bench/result.json | less
 
